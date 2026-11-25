@@ -140,3 +140,8 @@ function runSearch(){const q=qEl.value;let any=false;
   if(q.trim()){const sb=document.querySelector('.searchbar');const y=sb.getBoundingClientRect().top+scrollY-130;if(Math.abs(scrollY-y)>2&&scrollY>y)window.scrollTo({top:y,behavior:'instant'})}}
 qEl.addEventListener('input',runSearch);
 $('#qClear').onclick=()=>{qEl.value='';runSearch();qEl.focus()};
+
+qEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runSearch();qEl.blur();const t=document.querySelector('.searchbar');if(t)t.scrollIntoView({block:'start'})}});
+(function(){const m=$('#shareModal'),L='https://0gemy.github.io/black-wins-menu/';
+$('#shareBtn').onclick=()=>{m.hidden=false};$('#shareClose').onclick=()=>{m.hidden=true};m.addEventListener('click',e=>{if(e.target===m)m.hidden=true});
+$('#copyLink').onclick=async()=>{const b=$('#copyLink');try{await navigator.clipboard.writeText(L)}catch(x){const t=document.createElement('input');t.value=L;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}b.textContent='تم النسخ ✓';setTimeout(()=>b.textContent='نسخ اللينك',1800)};})();
