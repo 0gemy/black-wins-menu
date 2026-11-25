@@ -5,19 +5,21 @@ const store=JSON.parse(localStorage.getItem('bw')||'{}');
 
 /* theme */
 function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('bw-theme',t)}
-setTheme(localStorage.getItem('bw-theme')||'dark');
+setTheme(localStorage.getItem('bw-theme')||document.documentElement.dataset.theme||'dark');
 $('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
 /* render menu */
 const menuEl=$('#menu'),catsEl=$('#cats');
+const PH={pizza:"photo-1622880833523-7cf1c0bd4296",fatayer:"photo-1650142700227-ebd74e00d84e","fatir-sand":"photo-1665579479833-51cf6e4c6f23",sweet:"photo-1650330144213-e16d339a88f0","crepe-chicken":"photo-1535381987-2075e3077deb","crepe-meat":"photo-1535381987-2075e3077deb",mix:"photo-1535381987-2075e3077deb",shawarma:"photo-1665579479833-51cf6e4c6f23",arabic:"photo-1696950170773-db0bf33ca0ca",kilo:"photo-1767354063817-ad6d91d39478",fatta:"photo-1643995531740-01c3267fe2d9",syrian:"photo-1756137951022-93f3e83282e1",starters:"photo-1690965044177-f4870bdb22d9",sauces:"photo-1564115895589-c8c6bd1076f8","grill-chicken":"photo-1757961047502-0c0351ae7a48","grill-kofta":"photo-1764032754057-8a5fbfa8ea96","grill-meals":"photo-1767354063817-ad6d91d39478",offers:"photo-1677048547513-7701d262113e",rizo:"photo-1643995531740-01c3267fe2d9",tasweyat:"photo-1609722719705-11f7c7472b5c",extras:"photo-1690965044177-f4870bdb22d9"};
+const phUrl=id=>PH[id]?`https://images.unsplash.com/${PH[id]}?auto=format&fit=crop&w=900&h=360&q=70`:'';
 MENU.forEach(sec=>{
   const a=document.createElement('a');a.href='#'+sec.id;a.textContent=sec.title;a.dataset.id=sec.id;catsEl.appendChild(a);
   const s=document.createElement('section');s.className='sec';s.id=sec.id;
-  s.innerHTML=`<h2>${sec.title}</h2>${sec.note?`<div class="note">${sec.note}</div>`:''}<div class="grid"></div>`;
+  s.innerHTML=`${phUrl(sec.id)?`<div class="banner" style="background-image:url(${phUrl(sec.id)})"><h2>${sec.title}</h2></div>`:`<h2>${sec.title}</h2>`}${sec.note?`<div class="note">${sec.note}</div>`:''}<div class="grid"></div>`;
   const g=s.querySelector('.grid');
   sec.items.forEach(it=>{
-    const c=document.createElement('div');c.className='card';
-    c.innerHTML=`<h3>${it.n}</h3>${it.d?`<div class="d">${it.d}</div>`:''}<div class="vars"></div>`;
+    const c=document.createElement('div');c.className='card '+(it.v.length===1&&!it.v[0].l?'single':'multi');
+    c.innerHTML=`<div class="hd"><h3>${it.n}</h3>${it.d?`<div class="d">${it.d}</div>`:''}</div><div class="vars"></div>`;
     const vs=c.querySelector('.vars');
     it.v.forEach(v=>{
       const key=it.n+'|'+v.l;
@@ -31,7 +33,7 @@ MENU.forEach(sec=>{
 });
 function drawCtl(row){
   const k=row._key,q=cart[k]?cart[k].q:0,ctl=row.querySelector('.ctl');
-  ctl.innerHTML=q?`<div class="step"><button data-a="+" aria-label="زيادة">+</button><b>${q}</b><button data-a="-" aria-label="نقصان">−</button></div>`:`<button class="add" data-a="+">إضافة</button>`;
+  ctl.innerHTML=q?`<div class="step"><button data-a="+" aria-label="زيادة">+</button><b>${q}</b><button data-a="-" aria-label="نقصان">−</button></div>`:`<button class="add" data-a="+" aria-label="إضافة"><span>+</span><i>إضافة</i></button>`;
 }
 function refresh(){document.querySelectorAll('.var').forEach(drawCtl);renderCart()}
 menuEl.addEventListener('click',e=>{
