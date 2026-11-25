@@ -78,20 +78,22 @@ document.querySelectorAll('input[name=method]').forEach(r=>r.onchange=syncMethod
 document.querySelector('input[name=method][value=delivery]').checked=true;syncMethod();
 ['fName','fPhone','fAddr','fNotes'].forEach(id=>{const el=$('#'+id);el.value=store[id]||'';el.addEventListener('input',()=>{store[id]=el.value;localStorage.setItem('bw',JSON.stringify(store))})});
 $('#sendBtn').onclick=()=>{
-  const err=m=>{const e=$('#err');e.textContent=m;e.hidden=!m;return !m};
+  const err=(m,el)=>{const e=$('#err');e.textContent=m;e.hidden=!m;if(m){toast(m);document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));if(el){el.classList.add('bad');el.scrollIntoView({behavior:'smooth',block:'center'});if(el.focus&&el.tagName!=='DIV')setTimeout(()=>el.focus({preventScroll:true}),350)}else e.scrollIntoView({behavior:'smooth',block:'center'})}return !m};
   const br=val('branch'),me=val('method'),name=$('#fName').value.trim(),ph=$('#fPhone').value.trim(),ad=$('#fAddr').value.trim(),nt=$('#fNotes').value.trim();
-  if(!br)return err('اختار الفرع'),void 0;
+  if(!Object.keys(cart).length)return err('السلة فاضية'),void 0;
+  if(!br)return err('اختار الفرع',$('#branchSeg')),void 0;
   if(!me)return err('اختار توصيل أو استلام'),void 0;
-  if(!name)return err('اكتب الاسم'),void 0;
+  if(!name)return err('اكتب الاسم',$('#fName')),void 0;
   if(me==='delivery'){
-    if(!ad)return err('اكتب العنوان'),void 0;
-    if(!/^(\+?20|0)?1[0125]\d{8}$/.test(ph.replace(/[\s-]/g,'')))return err('اكتب رقم موبايل صحيح'),void 0;
+    if(!ad)return err('اكتب العنوان',$('#fAddr')),void 0;
+    if(!/^(\+?20|0)?1[0125]\d{8}$/.test(ph.replace(/[\s-]/g,'')))return err('اكتب رقم موبايل صحيح',$('#fPhone')),void 0;
   }
+  document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
   err('');
   const B=BRANCHES[br];
   const lines=Object.values(cart).map(i=>`• ${i.q}× ${i.n}${i.l?` (${i.l})`:''} = ${i.q*i.p} ج`);
   const msg=['طلب جديد من موقع Black Wins','',`الفرع: ${B.name}`,`الطريقة: ${me==='delivery'?'توصيل':'استلام من الفرع'}`,`الاسم: ${name}`,...(me==='delivery'?[`الموبايل: ${ph}`,`العنوان: ${ad}`]:[]),'','الطلب:',...lines,'',`الإجمالي: ${total()} ج`,...(nt?['',`ملاحظات: ${nt}`]:[])].join('\n');
-  window.open(`https://wa.me/${B.wa}?text=${encodeURIComponent(msg)}`,'_blank');
+  location.href=`https://wa.me/${B.wa}?text=${encodeURIComponent(msg)}`;
 };
 
 /* toast */
