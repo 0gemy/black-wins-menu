@@ -186,3 +186,9 @@ footer img{border-radius:50%;margin-bottom:8px}
 .sbox2 .icon-btn{position:absolute;top:10px;left:10px}
 .sbox2 .qr svg{width:230px;height:230px;border-radius:12px;margin:10px auto;display:block}
 .qrl{color:var(--mut);font-size:13px}.sact{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+
+.ctools{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--mut);font-size:14px}
+.clear-btn{font:inherit;font-size:13px;font-weight:700;color:var(--ac);border:1.5px solid var(--ac);background:transparent;border-radius:99px;padding:6px 14px}
+#cartList .del{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#b3261e;background:rgba(179,38,30,.1);flex:none}
+#cartList li{flex-wrap:wrap}#cartList .lp{min-width:56px}
+#confirmModal{z-index:300}
