@@ -7,7 +7,7 @@
 [data-accent=gold]{--ac:#d4a63a;--ac-fg:#111}
 [hidden]{display:none!important}
 *{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth;scroll-padding-top:128px}
+html{scroll-behavior:auto;scroll-padding-top:122px}
 body{font-family:var(--font);background:var(--bg);color:var(--fg);line-height:1.6;transition:background .3s,color .3s;padding-bottom:90px}
 button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:0;background:none}
@@ -160,3 +160,15 @@ footer img{border-radius:50%;margin-bottom:8px}
 .step button{width:30px;height:30px}
 .step b{min-width:30px;font-size:15px}
 .add{padding:0 12px 0 5px;height:34px;font-size:13px}.add span{width:24px;height:24px}
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:auto!important}}
+
+.searchbar{padding:14px 16px 0;max-width:1100px;margin:0 auto}
+.sbox{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:0 14px;height:46px;box-shadow:var(--shadow,none)}
+.sbox:focus-within{border-color:var(--ac)}
+.sbox svg{color:var(--mut);flex:none}
+.sbox input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--fg);font:inherit;font-size:15px;height:100%}
+.sbox input::-webkit-search-cancel-button{display:none}
+#qClear{width:26px;height:26px;border-radius:50%;background:var(--bg2);color:var(--fg);font-size:18px;line-height:1}
+.nores{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:50px 20px;color:var(--mut)}
+.nores b{font-size:18px;color:var(--fg)}
+[hidden]{display:none!important}
