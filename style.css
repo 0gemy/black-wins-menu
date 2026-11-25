@@ -192,3 +192,13 @@ footer img{border-radius:50%;margin-bottom:8px}
 #cartList .del{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#b3261e;background:rgba(179,38,30,.1);flex:none}
 #cartList li{flex-wrap:wrap}#cartList .lp{min-width:56px}
 #confirmModal{z-index:300}
+
+
+.perks{list-style:none;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;padding:0}
+.perks li{font-size:13px;font-weight:700;color:var(--ac);background:var(--bg2);border:1px solid var(--line);border-radius:99px;padding:5px 12px}
+.perks li::before{content:"✓ ";font-weight:900}
+.totop{position:fixed;z-index:39;inset-inline-start:14px;bottom:calc(84px + env(safe-area-inset-bottom));width:42px;height:42px;border-radius:50%;background:var(--ac);color:var(--ac-fg);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s}
+.totop.show{opacity:1;pointer-events:auto}
+.banner{position:relative}
+.banner .tag{position:absolute;top:10px;inset-inline-start:12px;background:var(--ac);color:var(--ac-fg);font-size:12px;font-weight:800;padding:4px 12px;border-radius:99px}
+#cartList .inote{order:9;flex-basis:100%;font:inherit;font-size:13px;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;background:var(--bg2);color:var(--fg)}
