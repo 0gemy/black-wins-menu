@@ -57,13 +57,14 @@ function renderCart(){
   $('#fab').hidden=c===0||$('#drawer').classList.contains('open');
   $('#fabCount').textContent=c;$('#fabTotal').textContent=fmt(t);
   const b=$('#cartBadge');b.hidden=c===0;b.textContent=c;
-  $('#cartEmpty').hidden=c>0;$('#checkout').hidden=c===0;
+  $('#cartEmpty').hidden=c>0;$('#cartTools').hidden=c===0;$('#cartCount').textContent=c+' صنف';$('#checkout').hidden=c===0;
   $('#total').textContent=fmt(t);$('#sendBtn').disabled=c===0;
   const ul=$('#cartList');ul.innerHTML='';
   Object.entries(cart).forEach(([k,i])=>{
     const li=document.createElement('li');
-    li.innerHTML=`<div class="nm">${i.n}${i.l?`<small>${i.l}</small>`:''}</div><div class="step"><button data-a="+">+</button><b>${i.q}</b><button data-a="-">−</button></div><div class="lp">${fmt(i.q*i.p)}</div>`;
-    li.querySelectorAll('button').forEach(bt=>bt.onclick=()=>change(k,bt.dataset.a==='+'?1:-1,i));
+    li.innerHTML=`<div class="nm">${i.n}${i.l?`<small>${i.l}</small>`:''}</div><div class="step"><button data-a="+">+</button><b>${i.q}</b><button data-a="-">−</button></div><div class="lp">${fmt(i.q*i.p)}</div><button type="button" class="del" data-del="1" aria-label="حذف الصنف"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg></button>`;
+    li.querySelectorAll('button[data-a]').forEach(bt=>bt.onclick=()=>change(k,bt.dataset.a==='+'?1:-1,i));
+    li.querySelector('.del').onclick=()=>{delete cart[k];refresh()};
     ul.appendChild(li);
   });
 }
@@ -145,3 +146,6 @@ qEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runSea
 (function(){const m=$('#shareModal'),L='https://0gemy.github.io/black-wins-menu/';
 $('#shareBtn').onclick=()=>{m.hidden=false};$('#shareClose').onclick=()=>{m.hidden=true};m.addEventListener('click',e=>{if(e.target===m)m.hidden=true});
 $('#copyLink').onclick=async()=>{const b=$('#copyLink');try{await navigator.clipboard.writeText(L)}catch(x){const t=document.createElement('input');t.value=L;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove()}b.textContent='تم النسخ ✓';setTimeout(()=>b.textContent='نسخ اللينك',1800)};})();
+
+(function(){const m=$('#confirmModal');$('#clearBtn').onclick=()=>{m.hidden=false};$('#confirmNo').onclick=()=>{m.hidden=true};m.addEventListener('click',e=>{if(e.target===m)m.hidden=true});
+$('#confirmYes').onclick=()=>{Object.keys(cart).forEach(k=>delete cart[k]);m.hidden=true;refresh();toast('تم مسح السلة')};})();
