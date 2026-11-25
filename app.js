@@ -8,6 +8,9 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
 setTheme(localStorage.getItem('bw-theme')||document.documentElement.dataset.theme||'dark');
 $('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
+/* order: grills first, no offers */
+(function(){const first=['grill-chicken','grill-kofta','grill-meals'];const keep=MENU.filter(s=>s.id!=='offers');
+const g=first.map(id=>keep.find(s=>s.id===id)).filter(Boolean);const rest=keep.filter(s=>!first.includes(s.id));MENU.splice(0,MENU.length,...g,...rest);})();
 /* render menu */
 const menuEl=$('#menu'),catsEl=$('#cats');
 const PH={pizza:"photo-1622880833523-7cf1c0bd4296",fatayer:"photo-1650142700227-ebd74e00d84e","fatir-sand":"photo-1665579479833-51cf6e4c6f23",sweet:"photo-1650330144213-e16d339a88f0","crepe-chicken":"photo-1535381987-2075e3077deb","crepe-meat":"photo-1535381987-2075e3077deb",mix:"photo-1535381987-2075e3077deb",shawarma:"photo-1665579479833-51cf6e4c6f23",arabic:"photo-1696950170773-db0bf33ca0ca",kilo:"photo-1767354063817-ad6d91d39478",fatta:"photo-1643995531740-01c3267fe2d9",syrian:"photo-1756137951022-93f3e83282e1",starters:"photo-1690965044177-f4870bdb22d9",sauces:"photo-1564115895589-c8c6bd1076f8","grill-chicken":"photo-1757961047502-0c0351ae7a48","grill-kofta":"photo-1764032754057-8a5fbfa8ea96","grill-meals":"photo-1767354063817-ad6d91d39478",offers:"photo-1677048547513-7701d262113e",rizo:"photo-1643995531740-01c3267fe2d9",tasweyat:"photo-1609722719705-11f7c7472b5c",extras:"photo-1690965044177-f4870bdb22d9"};
@@ -15,7 +18,7 @@ const phUrl=id=>PH[id]?`https://images.unsplash.com/${PH[id]}?auto=format&fit=cr
 MENU.forEach(sec=>{
   const a=document.createElement('a');a.href='#'+sec.id;a.textContent=sec.title;a.dataset.id=sec.id;catsEl.appendChild(a);
   const s=document.createElement('section');s.className='sec';s.id=sec.id;
-  s.innerHTML=`${phUrl(sec.id)?`<div class="banner" style="background-image:url(${phUrl(sec.id)})"><h2>${sec.title}</h2></div>`:`<h2>${sec.title}</h2>`}${sec.note?`<div class="note">${sec.note}</div>`:''}<div class="grid"></div>`;
+  s.innerHTML=`${phUrl(sec.id)?`<div class="banner" style="background-image:url(${phUrl(sec.id)})">${sec.id.startsWith('grill')?'<span class="tag">تخصصنا</span>':''}<h2>${sec.title}</h2></div>`:`<h2>${sec.title}</h2>`}${sec.note?`<div class="note">${sec.note}</div>`:''}<div class="grid"></div>`;
   const g=s.querySelector('.grid');
   sec.items.forEach(it=>{
     const c=document.createElement('div');c.className='card '+(it.v.length===1&&!it.v[0].l?'single':'multi');
@@ -62,9 +65,10 @@ function renderCart(){
   const ul=$('#cartList');ul.innerHTML='';
   Object.entries(cart).forEach(([k,i])=>{
     const li=document.createElement('li');
-    li.innerHTML=`<div class="nm">${i.n}${i.l?`<small>${i.l}</small>`:''}</div><div class="step"><button data-a="+">+</button><b>${i.q}</b><button data-a="-">−</button></div><div class="lp">${fmt(i.q*i.p)}</div><button type="button" class="del" data-del="1" aria-label="حذف الصنف"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg></button>`;
+    li.innerHTML=`<div class="nm">${i.n}${i.l?`<small>${i.l}</small>`:''}</div><div class="step"><button data-a="+">+</button><b>${i.q}</b><button data-a="-">−</button></div><div class="lp">${fmt(i.q*i.p)}</div><input class="inote" type="text" maxlength="80" placeholder="ملاحظة على الصنف (مثلا: من غير بصل)" aria-label="ملاحظة على الصنف"><button type="button" class="del" data-del="1" aria-label="حذف الصنف"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></svg></button>`;
     li.querySelectorAll('button[data-a]').forEach(bt=>bt.onclick=()=>change(k,bt.dataset.a==='+'?1:-1,i));
     li.querySelector('.del').onclick=()=>{delete cart[k];refresh()};
+    const ni=li.querySelector('.inote');ni.value=i.note||'';ni.oninput=()=>{i.note=ni.value.trim();try{localStorage.setItem('bw-cart',JSON.stringify(cart))}catch(e){}};
     ul.appendChild(li);
   });
 }
@@ -97,8 +101,9 @@ $('#sendBtn').onclick=()=>{
   document.querySelectorAll('.bad').forEach(x=>x.classList.remove('bad'));
   err('');
   const B=BRANCHES[br];
-  const lines=Object.values(cart).map(i=>`• ${i.q}× ${i.n}${i.l?` (${i.l})`:''} = ${i.q*i.p} ج`);
-  const msg=['طلب جديد من موقع Black Wins','',`الفرع: ${B.name}`,`الطريقة: ${me==='delivery'?'توصيل':'استلام من الفرع'}`,`الاسم: ${name}`,...(me==='delivery'?[`الموبايل: ${ph}`,`العنوان: ${ad}`]:[]),'','الطلب:',...lines,'',`الإجمالي: ${total()} ج`,...(nt?['',`ملاحظات: ${nt}`]:[])].join('\n');
+  const items=Object.values(cart);
+  const lines=items.map((i,n)=>`${n+1}) ${i.n}${i.l?` (${i.l})`:''}\n    ${i.q} × ${i.p} = ${i.q*i.p} ج${i.note?`\n    ملاحظة: ${i.note}`:''}`);
+  const msg=['*طلب جديد من موقع Black Wins*','──────────',`*الفرع:* ${B.name}`,`*الطريقة:* ${me==='delivery'?'توصيل':'استلام من الفرع'}`,`*الاسم:* ${name}`,...(ph?[`*الموبايل:* ${ph}`]:[]),...(me==='delivery'?[`*العنوان:* ${ad}`]:[]),'──────────',`*الطلب (${count()} صنف):*`,...lines,'──────────',`*الإجمالي: ${total()} ج*`,...(nt?['',`*ملاحظات عامة:* ${nt}`]:[])].join('\n');
   location.href=`https://wa.me/${B.wa}?text=${encodeURIComponent(msg)}`;
 };
 
@@ -122,7 +127,7 @@ setTimeout(()=>$('#preloader').classList.add('done'),3500);
 /* restore saved cart, validated against the current menu */
 (function(){try{const saved=JSON.parse(localStorage.getItem('bw-cart')||'{}'),ok={};
 MENU.forEach(sec=>sec.items.forEach(it=>it.v.forEach(v=>{ok[it.n+'|'+v.l]={n:it.n,l:v.l,p:v.p}})));
-Object.keys(saved).forEach(k=>{const m=ok[k],q=parseInt(saved[k]&&saved[k].q,10);if(m&&q>0)cart[k]={...m,q:Math.min(q,99)}})}catch(e){}})();
+Object.keys(saved).forEach(k=>{const m=ok[k],q=parseInt(saved[k]&&saved[k].q,10);if(m&&q>0)cart[k]={...m,q:Math.min(q,99),note:String(saved[k].note||'').slice(0,80)}})}catch(e){}})();
 refresh();
 
 /* search */
@@ -149,3 +154,5 @@ $('#copyLink').onclick=async()=>{const b=$('#copyLink');try{await navigator.clip
 
 (function(){const m=$('#confirmModal');$('#clearBtn').onclick=()=>{m.hidden=false};$('#confirmNo').onclick=()=>{m.hidden=true};m.addEventListener('click',e=>{if(e.target===m)m.hidden=true});
 $('#confirmYes').onclick=()=>{Object.keys(cart).forEach(k=>delete cart[k]);m.hidden=true;refresh();toast('تم مسح السلة')};})();
+
+(function(){const b=$('#toTop');addEventListener('scroll',()=>{b.classList.toggle('show',scrollY>900)},{passive:true});b.onclick=()=>scrollTo(0,0)})();
