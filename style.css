@@ -209,3 +209,10 @@ footer img{border-radius:50%;margin-bottom:8px}
 .card.hasimg .hd{grid-column:2;grid-row:1}
 .card.hasimg .vars{grid-column:2;grid-row:2}
 @media(max-width:400px){.card.hasimg{grid-template-columns:64px minmax(0,1fr);column-gap:10px}.card.hasimg .thumb{width:64px;height:64px}}
+.card .thumb{cursor:zoom-in}
+
+/* image lightbox */
+#lb{position:fixed;inset:0;z-index:400;background:rgba(15,8,6,.92);display:none;align-items:center;justify-content:center;padding:20px}
+#lb.on{display:flex;animation:fade .2s}
+#lb img{max-width:94vw;max-height:84vh;object-fit:contain;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+#lbX{position:absolute;top:calc(14px + env(safe-area-inset-top));inset-inline-end:14px;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;font-size:18px;cursor:pointer}
