@@ -135,8 +135,6 @@ addEventListener('scroll',spy,{passive:true});spy();
 const hide=()=>setTimeout(()=>$('#preloader').classList.add('done'),900);
 document.readyState==='complete'?hide():addEventListener('load',hide);
 setTimeout(()=>$('#preloader').classList.add('done'),3500);
-/* boot menu */
-buildMenu();
 /* restore saved cart, validated against the current menu */
 (function(){try{const saved=JSON.parse(localStorage.getItem('bw-cart')||'{}'),ok={};
 MENU.forEach(sec=>sec.items.forEach(it=>it.v.forEach(v=>{ok[it.n+'|'+v.l]={n:it.n,l:v.l,p:v.p}})));
@@ -187,7 +185,9 @@ async function loadRemoteMenu(){
    if(!vs.length)return;
    sec.items.push({n:it.name,d:it.descr||'',img:it.img||'',v:vs});});
   const list=[...map.values()].filter(x=>x.items.length);
-  if(list.length)buildMenu(list);
+  const nItems=list.reduce((a,x)=>a+x.items.length,0);
+  if(list.length>=5&&nItems>=50)buildMenu(list);
  }catch(e){}
 }
+buildMenu();
 loadRemoteMenu();
