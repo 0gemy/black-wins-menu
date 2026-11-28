@@ -189,5 +189,20 @@ async function loadRemoteMenu(){
   if(list.length>=5&&nItems>=50)buildMenu(list);
  }catch(e){}
 }
+/* image lightbox */
+let lbEl=null;
+function openLightbox(src){
+ if(!lbEl){
+  lbEl=document.createElement('div');lbEl.id='lb';
+  lbEl.innerHTML='<button id="lbX" aria-label="إغلاق">✕</button><img alt="">';
+  lbEl.addEventListener('click',()=>lbEl.classList.remove('on'));
+  document.body.appendChild(lbEl);
+ }
+ lbEl.querySelector('img').src=src;lbEl.classList.add('on');
+}
+document.addEventListener('click',e=>{
+ const t=e.target.closest&&e.target.closest('.card .thumb');
+ if(t&&t.src){e.preventDefault();openLightbox(t.src);}
+});
 buildMenu();
 loadRemoteMenu();
