@@ -8,32 +8,45 @@ function setTheme(t){document.documentElement.dataset.theme=t;localStorage.setIt
 setTheme(localStorage.getItem('bw-theme')||document.documentElement.dataset.theme||'dark');
 $('#themeBtn').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
 
-/* order: grills first, no offers */
-(function(){const first=['grill-chicken','grill-kofta','grill-meals'];const keep=MENU.filter(s=>s.id!=='offers');
-const g=first.map(id=>keep.find(s=>s.id===id)).filter(Boolean);const rest=keep.filter(s=>!first.includes(s.id));MENU.splice(0,MENU.length,...g,...rest);})();
 /* render menu */
 const menuEl=$('#menu'),catsEl=$('#cats');
 const PH={pizza:"photo-1622880833523-7cf1c0bd4296",fatayer:"photo-1650142700227-ebd74e00d84e","fatir-sand":"photo-1665579479833-51cf6e4c6f23",sweet:"photo-1650330144213-e16d339a88f0","crepe-chicken":"photo-1535381987-2075e3077deb","crepe-meat":"photo-1535381987-2075e3077deb",mix:"photo-1535381987-2075e3077deb",shawarma:"photo-1665579479833-51cf6e4c6f23",arabic:"photo-1696950170773-db0bf33ca0ca",kilo:"photo-1767354063817-ad6d91d39478",fatta:"photo-1643995531740-01c3267fe2d9",syrian:"photo-1756137951022-93f3e83282e1",starters:"photo-1690965044177-f4870bdb22d9",sauces:"photo-1564115895589-c8c6bd1076f8","grill-chicken":"photo-1757961047502-0c0351ae7a48","grill-kofta":"photo-1764032754057-8a5fbfa8ea96","grill-meals":"photo-1767354063817-ad6d91d39478",offers:"photo-1677048547513-7701d262113e",rizo:"photo-1643995531740-01c3267fe2d9",tasweyat:"photo-1609722719705-11f7c7472b5c",extras:"photo-1690965044177-f4870bdb22d9"};
 const phUrl=id=>PH[id]?`https://images.unsplash.com/${PH[id]}?auto=format&fit=crop&w=900&h=360&q=70`:'';
-MENU.forEach(sec=>{
+const esc=v=>String(v==null?'':v).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let cards=[],secs=[];
+function orderMenu(list){const first=['grill-chicken','grill-kofta','grill-meals'];const keep=(list||[]).filter(s=>s.id!=='offers');
+ const g=first.map(id=>keep.find(s=>s.id===id)).filter(Boolean);const rest=keep.filter(s=>!first.includes(s.id));return g.concat(rest);}
+function buildMenu(list){
+ const data=orderMenu((Array.isArray(list)&&list.length)?list:MENU);
+ catsEl.innerHTML='';menuEl.innerHTML='';
+ data.forEach(sec=>{
   const a=document.createElement('a');a.href='#'+sec.id;a.textContent=sec.title;a.dataset.id=sec.id;catsEl.appendChild(a);
   const s=document.createElement('section');s.className='sec';s.id=sec.id;
-  s.innerHTML=`${phUrl(sec.id)?`<div class="banner" style="background-image:url(${phUrl(sec.id)})">${sec.id.startsWith('grill')?'<span class="tag">تخصصنا</span>':''}<h2>${sec.title}</h2></div>`:`<h2>${sec.title}</h2>`}${sec.note?`<div class="note">${sec.note}</div>`:''}<div class="grid"></div>`;
+  const bnr=sec.banner||phUrl(sec.id);
+  s.innerHTML=`${bnr?`<div class="banner" style="background-image:url(${esc(bnr)})">${sec.id.startsWith('grill')?'<span class="tag">تخصصنا</span>':''}<h2>${esc(sec.title)}</h2></div>`:`<h2>${esc(sec.title)}</h2>`}${sec.note?`<div class="note">${esc(sec.note)}</div>`:''}<div class="grid"></div>`;
   const g=s.querySelector('.grid');
   sec.items.forEach(it=>{
-    const c=document.createElement('div');c.className='card '+(it.v.length===1&&!it.v[0].l?'single':'multi');
-    c.innerHTML=`<div class="hd"><h3>${it.n}</h3>${it.d?`<div class="d">${it.d}</div>`:''}</div><div class="vars"></div>`;
-    const vs=c.querySelector('.vars');
-    it.v.forEach(v=>{
-      const key=it.n+'|'+v.l;
-      const row=document.createElement('div');row.className='var';
-      row.innerHTML=`${v.l?`<span class="lbl">${v.l}</span>`:''}<span class="pr">${v.p} <small>ج</small></span><span class="ctl"></span>`;
-      row._key=key;row._it={n:it.n,l:v.l,p:v.p};vs.appendChild(row);
-    });
-    g.appendChild(c);
+   const c=document.createElement('div');c.className='card '+(it.img?'hasimg ':'')+(it.v.length===1&&!it.v[0].l?'single':'multi');
+   c.innerHTML=`${it.img?`<img class="thumb" src="${esc(it.img)}" alt="" loading="lazy" onerror="this.remove()">`:''}<div class="hd"><h3>${esc(it.n)}</h3>${it.d?`<div class="d">${esc(it.d)}</div>`:''}</div><div class="vars"></div>`;
+   const vs=c.querySelector('.vars');
+   it.v.forEach(v=>{
+    const key=it.n+'|'+v.l;
+    const row=document.createElement('div');row.className='var';
+    row.innerHTML=`${v.l?`<span class="lbl">${esc(v.l)}</span>`:''}<span class="pr">${v.p} <small>ج</small></span><span class="ctl"></span>`;
+    row._key=key;row._it={n:it.n,l:v.l,p:v.p};vs.appendChild(row);
+   });
+   g.appendChild(c);
   });
   menuEl.appendChild(s);
-});
+ });
+ cards=[...document.querySelectorAll('.card')];indexCards();
+ document.querySelectorAll('.card').forEach(c=>io.observe(c));
+ secs=[...document.querySelectorAll('.sec')];
+ refresh();spy();
+}
+/* order: grills first, no offers */
+(function(){const first=['grill-chicken','grill-kofta','grill-meals'];const keep=MENU.filter(s=>s.id!=='offers');
+const g=first.map(id=>keep.find(s=>s.id===id)).filter(Boolean);const rest=keep.filter(s=>!first.includes(s.id));MENU.splice(0,MENU.length,...g,...rest);})();
 function drawCtl(row){
   const k=row._key,q=cart[k]?cart[k].q:0,ctl=row.querySelector('.ctl');
   ctl.innerHTML=q?`<div class="step"><button data-a="+" aria-label="زيادة">+</button><b>${q}</b><button data-a="-" aria-label="نقصان">−</button></div>`:`<button class="add" data-a="+" aria-label="إضافة"><span>+</span><i>إضافة</i></button>`;
@@ -112,8 +125,6 @@ let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('sh
 
 /* scroll: reveal + active category */
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -40px'});
-document.querySelectorAll('.card').forEach(c=>io.observe(c));
-const secs=[...document.querySelectorAll('.sec')];
 function spy(){
   let cur=secs[0];secs.forEach(s=>{if(!s.hidden&&s.getBoundingClientRect().top<160)cur=s});
   catsEl.querySelectorAll('a').forEach(a=>{const on=a.dataset.id===cur.id;if(on&&!a.classList.contains('on')){const r=a.getBoundingClientRect(),p=catsEl.getBoundingClientRect();catsEl.scrollTo({left:catsEl.scrollLeft+(r.left-p.left)-p.width/2+r.width/2,behavior:'smooth'})}a.classList.toggle('on',on)});
@@ -124,6 +135,8 @@ addEventListener('scroll',spy,{passive:true});spy();
 const hide=()=>setTimeout(()=>$('#preloader').classList.add('done'),900);
 document.readyState==='complete'?hide():addEventListener('load',hide);
 setTimeout(()=>$('#preloader').classList.add('done'),3500);
+/* boot menu */
+buildMenu();
 /* restore saved cart, validated against the current menu */
 (function(){try{const saved=JSON.parse(localStorage.getItem('bw-cart')||'{}'),ok={};
 MENU.forEach(sec=>sec.items.forEach(it=>it.v.forEach(v=>{ok[it.n+'|'+v.l]={n:it.n,l:v.l,p:v.p}})));
@@ -133,8 +146,8 @@ refresh();
 /* search */
 const AR=t=>(t||'').toString().toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g,'').replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/(.)\1+/g,'$1');
 function lev(a,b){if(Math.abs(a.length-b.length)>1)return 9;const m=[];for(let i=0;i<=a.length;i++){m[i]=[i]}for(let j=0;j<=b.length;j++)m[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)m[i][j]=Math.min(m[i-1][j]+1,m[i][j-1]+1,m[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return m[a.length][b.length]}
-const cards=[...document.querySelectorAll('.card')];
-cards.forEach(c=>{const sec=c.closest('.sec');const t=c.querySelector('h3').textContent+' '+(c.querySelector('.d')?c.querySelector('.d').textContent:'')+' '+sec.querySelector('h2').textContent;c._h=AR(t);c._hn=c._h.replace(/\s/g,'');c._w=c._h.split(/\s+/)});
+function indexCards(){cards=[...document.querySelectorAll('.card')];
+cards.forEach(c=>{const sec=c.closest('.sec');const t=c.querySelector('h3').textContent+' '+(c.querySelector('.d')?c.querySelector('.d').textContent:'')+' '+sec.querySelector('h2').textContent;c._h=AR(t);c._hn=c._h.replace(/\s/g,'');c._w=c._h.split(/\s+/)});}
 function matches(c,q){const qn=AR(q).trim();if(!qn)return true;if(qn.length<2&&q.trim().length>=3)return false;
   if(qn.includes(' ')&&c._hn.includes(qn.replace(/\s/g,'')))return true;
   return qn.split(/\s+/).every(tk=>c._w.some(w=>w.startsWith(tk))||(tk.length>=4&&(c._hn.includes(tk)||c._w.some(w=>lev(tk,w)<=1||lev(tk,w.slice(0,tk.length))<=1))))}
@@ -156,3 +169,25 @@ $('#copyLink').onclick=async()=>{const b=$('#copyLink');try{await navigator.clip
 $('#confirmYes').onclick=()=>{Object.keys(cart).forEach(k=>delete cart[k]);m.hidden=true;refresh();toast('تم مسح السلة')};})();
 
 (function(){const b=$('#toTop');addEventListener('scroll',()=>{b.classList.toggle('show',scrollY>900)},{passive:true});b.onclick=()=>scrollTo(0,0)})();
+
+/* live menu from the dashboard database (falls back to the static menu above) */
+async function loadRemoteMenu(){
+ try{
+  const h={apikey:BW.KEY,Authorization:'Bearer '+BW.KEY};
+  const [rs,ri]=await Promise.all([
+   fetch(BW.U+'/rest/v1/bw_sections?select=id,title,note,banner,sort&order=sort.asc',{headers:h}),
+   fetch(BW.U+'/rest/v1/bw_items?select=section_id,name,descr,img,variants,sort&order=sort.asc',{headers:h})
+  ]);
+  if(!rs.ok||!ri.ok)return;
+  const S=await rs.json(),I=await ri.json();
+  if(!Array.isArray(S)||!S.length)return;
+  const map=new Map(S.map(x=>[x.id,{id:x.id,title:x.title,note:x.note||'',banner:x.banner||'',items:[]}]));
+  I.forEach(it=>{const sec=map.get(it.section_id);if(!sec)return;
+   const vs=(it.variants||[]).map(v=>({l:v.l||'',p:+v.p||0})).filter(v=>v.p>0);
+   if(!vs.length)return;
+   sec.items.push({n:it.name,d:it.descr||'',img:it.img||'',v:vs});});
+  const list=[...map.values()].filter(x=>x.items.length);
+  if(list.length)buildMenu(list);
+ }catch(e){}
+}
+loadRemoteMenu();
