@@ -70,3 +70,5 @@ main{padding:14px;max-width:900px;margin:0 auto 60px}
 .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-3px}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(min-width:620px){.item{grid-template-columns:52px minmax(0,1fr) auto}.item .rowacts{grid-column:3;margin-top:0}.modal{align-items:center;padding:20px}.sheet{border-radius:18px}}
+
+[hidden]{display:none !important}
