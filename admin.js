@@ -89,6 +89,7 @@ function render(){
       html+='<div class="item"><div class="th">'+(it.img?'<img src="'+E(it.img)+'" alt="" loading="lazy">':'صورة')+'</div>'+
         '<div class="nm"><b>'+E(it.name)+'</b>'+(it.descr?'<small>'+E(it.descr)+'</small>':'')+'<span class="pr">'+E(priceTxt(it.variants))+'</span></div>'+
         '<div class="rowacts"><button class="btn sm" data-img="'+E(it.id)+'">'+(it.img?'تغيير الصورة':'إضافة صورة')+'</button>'+
+        (it.img?'<button class="btn sm danger" data-delimg="'+E(it.id)+'">حذف الصورة</button>':'')+
         '<button class="btn sm ghost" data-eitem="'+E(it.id)+'">تعديل</button>'+
         '<button class="btn sm danger" data-del="'+E(it.id)+'">حذف</button></div></div>';
     });
@@ -103,6 +104,7 @@ function render(){
   $('#view').querySelectorAll('[data-eitem]').forEach(b=>b.onclick=()=>itemEditor(ITEMS.find(x=>x.id===b.dataset.eitem),null));
   $('#view').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>delItem(b.dataset.del));
   $('#view').querySelectorAll('[data-img]').forEach(b=>b.onclick=()=>quickImage(ITEMS.find(x=>x.id===b.dataset.img)));
+  $('#view').querySelectorAll('[data-delimg]').forEach(b=>b.onclick=()=>delImage(b.dataset.delimg));
   $('#view').querySelectorAll('[data-esec]').forEach(b=>b.onclick=()=>secEditor(SEC.find(x=>x.id===b.dataset.esec)));
 }
 
@@ -206,6 +208,13 @@ function itemEditor(it,sectionId){
       await loadAll();closeSheet();render();toast(isNew?'الصنف اتضاف ✓':'التعديل اتحفظ ✓');
     }catch(e){toast(e.message,1);btn.disabled=false;btn.textContent='حفظ'}
   };
+}
+
+async function delImage(id){
+  const it=ITEMS.find(x=>x.id===id);if(!it)return;
+  if(!confirm('تحذف صورة "'+it.name+'"؟'))return;
+  try{await api('/rest/v1/bw_items?id=eq.'+id,{method:'PATCH',body:JSON.stringify({img:null})});it.img='';render();toast('الصورة اتحذفت')}
+  catch(e){toast(e.message,1)}
 }
 
 async function delItem(id){
