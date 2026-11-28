@@ -202,3 +202,10 @@ footer img{border-radius:50%;margin-bottom:8px}
 .banner{position:relative}
 .banner .tag{position:absolute;top:10px;inset-inline-start:12px;background:var(--ac);color:var(--ac-fg);font-size:12px;font-weight:800;padding:4px 12px;border-radius:99px}
 #cartList .inote{order:9;flex-basis:100%;font:inherit;font-size:13px;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;background:var(--bg2);color:var(--fg)}
+
+/* item thumbnails from the dashboard */
+.card.hasimg{display:grid;grid-template-columns:76px minmax(0,1fr);column-gap:12px;align-items:start}
+.card.hasimg .thumb{grid-column:1;grid-row:1 / span 2;width:76px;height:76px;border-radius:12px;object-fit:cover;border:1px solid var(--line);background:var(--bg2);display:block}
+.card.hasimg .hd{grid-column:2;grid-row:1}
+.card.hasimg .vars{grid-column:2;grid-row:2}
+@media(max-width:400px){.card.hasimg{grid-template-columns:64px minmax(0,1fr);column-gap:10px}.card.hasimg .thumb{width:64px;height:64px}}
